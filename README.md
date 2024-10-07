@@ -27,7 +27,7 @@ To set up and run Prisma, follow these steps:
 3. Configure your database connection in the `prisma/.env` file. Here is an example of the default environment variable:
   ```env
         DATABASE_URL="postgresql://johndoe:randompassword@localhost:5432/mydb?schema=public"
-        ```
+  ```
   Replace the connection string with your own database connection URL.
 
 4. Generate Prisma Client:
