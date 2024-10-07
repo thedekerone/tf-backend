@@ -30,7 +30,6 @@ To set up and run Prisma, follow these steps:
         ```
   Replace the connection string with your own database connection URL.
 
-
 4. Generate Prisma Client:
 
     ```bash
