@@ -17,6 +17,10 @@ export const getTagById = async (req: Request, res: Response) => {
   try {
     const tag = await prisma.tag.findUnique({
       where: { id: Number(id) },
+      include: {
+        projects: true,
+        courses: true,
+      },
     });
     if (tag) {
       res.status(200).json(tag);

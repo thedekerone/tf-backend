@@ -3,7 +3,13 @@ import prisma from '../models/prismaClient';
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const allUsers = await prisma.user.findMany();
+    const allUsers = await prisma.user.findMany({
+      include: {
+        projects: true,
+        skills: true,
+        courses: true,
+      },
+    });
     res.json(allUsers);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
@@ -15,6 +21,11 @@ export const getUserById = async (req: Request, res: Response) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: Number(id) },
+      include: {
+        projects: true,
+        skills: true,
+        courses: true,
+      },
     });
     if (user) {
       res.json(user);
@@ -27,10 +38,10 @@ export const getUserById = async (req: Request, res: Response) => {
 };
 
 export const createUser = async (req: Request, res: Response) => {
-  const { name, email } = req.body;
+  const { name, email, bio, avatar } = req.body;
   try {
     const newUser = await prisma.user.create({
-      data: { name, email },
+      data: { name, email, bio, avatar },
     });
     res.status(201).json(newUser);
   } catch (error) {
@@ -40,17 +51,18 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, email } = req.body;
+  const { name, email, bio, avatar } = req.body;
   try {
     const updatedUser = await prisma.user.update({
       where: { id: Number(id) },
-      data: { name, email },
+      data: { name, email, bio, avatar },
     });
     res.json(updatedUser);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
 export const deleteUser = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
@@ -62,4 +74,3 @@ export const deleteUser = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
-

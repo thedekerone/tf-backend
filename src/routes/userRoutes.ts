@@ -3,27 +3,6 @@ import { getAllUsers, getUserById, createUser, updateUser, deleteUser } from '..
 
 /**
  * @swagger
- * components:
- *   schemas:
- *     User:
- *       type: object
- *       properties:
- *         id:
- *           type: integer
- *           description: The user ID
- *         name:
- *           type: string
- *           description: The user's name
- *         email:
- *           type: string
- *           description: The user's email
- * tags:
- *   name: Users
- *   description: User management
- */
-
-/**
- * @swagger
  * /users:
  *   get:
  *     summary: Get all users

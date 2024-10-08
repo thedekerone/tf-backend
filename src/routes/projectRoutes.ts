@@ -20,9 +20,15 @@ const router = Router();
  *                 type: string
  *               description:
  *                 type: string
+ *               maxMembers:
+ *                 type: number
  *               courseId:
  *                 type: number
- *               userIds:
+ *               status:
+ *                 type: string
+ *               creatorId:
+ *                 type: number
+ *               skillIds:
  *                 type: array
  *                 items:
  *                   type: number
@@ -109,9 +115,15 @@ router.get('/projects/:id', getProjectById);
  *                 type: string
  *               description:
  *                 type: string
+ *               maxMembers:
+ *                 type: number
  *               courseId:
  *                 type: number
- *               userIds:
+ *               status:
+ *                 type: string
+ *               creatorId:
+ *                 type: number
+ *               skillIds:
  *                 type: array
  *                 items:
  *                   type: number
@@ -149,3 +161,42 @@ router.put('/projects/:id', updateProject);
 router.delete('/projects/:id', deleteProject);
 
 export default router;
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Project:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: The project ID
+ *         name:
+ *           type: string
+ *           description: The name of the project
+ *         description:
+ *           type: string
+ *           description: The description of the project
+ *         maxMembers:
+ *           type: number
+ *           description: The maximum number of members in the project
+ *         courseId:
+ *           type: number
+ *           description: The ID of the course associated with the project
+ *         status:
+ *           type: string
+ *           description: The status of the project
+ *         creatorId:
+ *           type: number
+ *           description: The ID of the creator of the project
+ *         skillIds:
+ *           type: array
+ *           items:
+ *             type: number
+ *           description: The IDs of the skills associated with the project
+ *         tagIds:
+ *           type: array
+ *           items:
+ *             type: number
+ *           description: The IDs of the tags associated with the project
+ */

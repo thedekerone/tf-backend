@@ -15,6 +15,10 @@ app.use(express.json());
 setupSwagger(app);
 
 
+app.get('/', (req, res) => {
+  res.send('Hello World');
+})
+
 app.use(userRoutes);
 app.use(projectRoutes);
 app.use(courseRoutes);

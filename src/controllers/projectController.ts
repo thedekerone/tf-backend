@@ -8,7 +8,12 @@ export const getAllProjects = async (req: Request, res: Response) => {
   try {
     const projects = await prisma.project.findMany({
       include: {
-        users: true,
+        members: {
+          include: {
+            User: true,
+          },
+        },
+        skills: true,
         tags: true,
         Course: true,
       },
@@ -26,7 +31,12 @@ export const getProjectById = async (req: Request, res: Response) => {
     const project = await prisma.project.findUnique({
       where: { id: Number(id) },
       include: {
-        users: true,
+        members: {
+          include: {
+            User: true,
+          },
+        },
+        skills: true,
         tags: true,
         Course: true,
       },
@@ -43,15 +53,25 @@ export const getProjectById = async (req: Request, res: Response) => {
 
 // Create a new project
 export const createProject = async (req: Request, res: Response) => {
-  const { name, description, courseId, userIds, tagIds } = req.body;
+  const { name, description, courseId, creatorId, maxMembers, status, userIds, skillIds, tagIds } = req.body;
   try {
     const project = await prisma.project.create({
       data: {
         name,
         description,
         courseId,
-        users: {
-          connect: userIds.map((id: number) => ({ id })),
+        creatorId,
+        maxMembers,
+        status,
+        members: {
+          create: userIds.map((userId: number) => ({
+            userId,
+            role: 'member',
+            status: 'active',
+          })),
+        },
+        skills: {
+          connect: skillIds.map((id: number) => ({ id })),
         },
         tags: {
           connect: tagIds.map((id: number) => ({ id })),
@@ -67,7 +87,7 @@ export const createProject = async (req: Request, res: Response) => {
 // Update an existing project
 export const updateProject = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, description, courseId, userIds, tagIds } = req.body;
+  const { name, description, courseId, maxMembers, status, userIds, skillIds, tagIds } = req.body;
   try {
     const project = await prisma.project.update({
       where: { id: Number(id) },
@@ -75,8 +95,17 @@ export const updateProject = async (req: Request, res: Response) => {
         name,
         description,
         courseId,
-        users: {
-          set: userIds.map((id: number) => ({ id })),
+        maxMembers,
+        status,
+        members: {
+          set: userIds.map((userId: number) => ({
+            userId,
+            role: 'member',
+            status: 'active',
+          })),
+        },
+        skills: {
+          set: skillIds.map((id: number) => ({ id })),
         },
         tags: {
           set: tagIds.map((id: number) => ({ id })),

@@ -5,7 +5,13 @@ const prisma = new PrismaClient();
 
 export const getCourses = async (req: Request, res: Response) => {
   try {
-    const courses = await prisma.course.findMany();
+    const courses = await prisma.course.findMany({
+      include: {
+        tags: true,
+        users: true,
+        projects: true,
+      },
+    });
     res.status(200).json(courses);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch courses' });
@@ -17,6 +23,11 @@ export const getCourseById = async (req: Request, res: Response) => {
   try {
     const course = await prisma.course.findUnique({
       where: { id: Number(id) },
+      include: {
+        tags: true,
+        users: true,
+        projects: true,
+      },
     });
     if (course) {
       res.status(200).json(course);
@@ -29,10 +40,24 @@ export const getCourseById = async (req: Request, res: Response) => {
 };
 
 export const createCourse = async (req: Request, res: Response) => {
-  const { name, description } = req.body;
+  const { name, description, startDate, endDate, tagIds, userIds, projectIds } = req.body;
   try {
     const newCourse = await prisma.course.create({
-      data: { name, description },
+      data: {
+        name,
+        description,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        tags: {
+          connect: tagIds.map((id: number) => ({ id })),
+        },
+        users: {
+          connect: userIds.map((id: number) => ({ id })),
+        },
+        projects: {
+          connect: projectIds.map((id: number) => ({ id })),
+        },
+      },
     });
     res.status(201).json(newCourse);
   } catch (error) {
@@ -42,11 +67,25 @@ export const createCourse = async (req: Request, res: Response) => {
 
 export const updateCourse = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, description } = req.body;
+  const { name, description, startDate, endDate, tagIds, userIds, projectIds } = req.body;
   try {
     const updatedCourse = await prisma.course.update({
       where: { id: Number(id) },
-      data: { name, description },
+      data: {
+        name,
+        description,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        tags: {
+          set: tagIds.map((id: number) => ({ id })),
+        },
+        users: {
+          set: userIds.map((id: number) => ({ id })),
+        },
+        projects: {
+          set: projectIds.map((id: number) => ({ id })),
+        },
+      },
     });
     res.status(200).json(updatedCourse);
   } catch (error) {

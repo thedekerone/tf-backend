@@ -8,35 +8,69 @@ datasource db {
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
-  name     String
-  email    String    @unique
-  projects Project[] @relation("UserProjects")
-  courses  Course[]  @relation("UserCourses")
+  id        Int             @id @default(autoincrement())
+  name      String
+  email     String          @unique
+  bio       String?
+  avatar    String?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  projects  ProjectMember[]
+  skills    Skill[]
+  courses   Course[]
+}
+
+model ProjectMember {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  projectId Int
+  role      String
+  status    String
+  joinedAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id])
+  Project   Project  @relation(fields: [projectId], references: [id])
 }
 
 model Project {
-  id          Int    @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   name        String
   description String
+  maxMembers  Int
   courseId    Int
-  users       User[] @relation("UserProjects")
-  tags        Tag[]  @relation("ProjectTags")
-  Course      Course @relation(fields: [courseId], references: [id])
+  status      String
+  creatorId   Int
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  members     ProjectMember[]
+  Course      Course          @relation(fields: [courseId], references: [id])
+  skills      Skill[]
+  tags        Tag[]
 }
 
 model Course {
   id          Int       @id @default(autoincrement())
   name        String
   description String
-  users       User[]    @relation("UserCourses")
-  tags        Tag[]     @relation("CourseTags")
-  Project     Project[]
+  startDate   DateTime
+  endDate     DateTime
+  tags        Tag[]
+  users       User[]
+  projects    Project[]
+}
+
+model Skill {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  category String
+  users    User[]
+  projects Project[]
 }
 
 model Tag {
   id       Int       @id @default(autoincrement())
-  name     String
-  projects Project[] @relation("ProjectTags")
-  courses  Course[]  @relation("CourseTags")
+  name     String    @unique
+  projects Project[]
+  courses  Course[]
 }

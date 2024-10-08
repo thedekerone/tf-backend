@@ -20,6 +20,16 @@ const router = Router();
  *                 type: string
  *               description:
  *                 type: string
+ *               startDate:
+ *                 type: string
+ *                 format: date-time
+ *               endDate:
+ *                 type: string
+ *                 format: date-time
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       201:
  *         description: The course was successfully created
@@ -50,6 +60,16 @@ router.post('/courses', createCourse);
  *                     type: string
  *                   description:
  *                     type: string
+ *                   startDate:
+ *                     type: string
+ *                     format: date-time
+ *                   endDate:
+ *                     type: string
+ *                     format: date-time
+ *                   tags:
+ *                     type: array
+ *                     items:
+ *                       type: string
  *       500:
  *         description: Failed to fetch courses
  */
@@ -82,6 +102,16 @@ router.get('/courses', getCourses);
  *                   type: string
  *                 description:
  *                   type: string
+ *                 startDate:
+ *                   type: string
+ *                   format: date-time
+ *                 endDate:
+ *                   type: string
+ *                   format: date-time
+ *                 tags:
+ *                   type: array
+ *                   items:
+ *                     type: string
  *       404:
  *         description: Course not found
  *       500:
@@ -113,6 +143,16 @@ router.get('/courses/:id', getCourseById);
  *                 type: string
  *               description:
  *                 type: string
+ *               startDate:
+ *                 type: string
+ *                 format: date-time
+ *               endDate:
+ *                 type: string
+ *                 format: date-time
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       200:
  *         description: The course was successfully updated
