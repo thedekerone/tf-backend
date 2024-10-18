@@ -2,6 +2,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Credential {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  password  String
+  User      User     @relation(fields: [userId], references: [id])
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -18,6 +25,8 @@ model User {
   projects  ProjectMember[]
   skills    Skill[]
   courses   Course[]
+  credentials Credential[]
+  createdProjects Project[] @relation("UserCreatedProjects")
 }
 
 model ProjectMember {
@@ -36,13 +45,14 @@ model ProjectMember {
 model Project {
   id          Int             @id @default(autoincrement())
   name        String
-  description String
-  maxMembers  Int
+  description String?
+  maxMembers  Int?
   courseId    Int
-  status      String
+  status      String?
   creatorId   Int
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  Creator     User    @relation("UserCreatedProjects", fields: [creatorId], references: [id])
+  createdAt   DateTime?       @default(now())
+  updatedAt   DateTime?       @updatedAt
   members     ProjectMember[]
   Course      Course          @relation(fields: [courseId], references: [id])
   skills      Skill[]
@@ -52,7 +62,7 @@ model Project {
 model Course {
   id          Int       @id @default(autoincrement())
   name        String
-  description String
+  description String?
   startDate   DateTime
   endDate     DateTime
   tags        Tag[]
@@ -63,7 +73,7 @@ model Course {
 model Skill {
   id       Int       @id @default(autoincrement())
   name     String    @unique
-  category String
+  category String?
   users    User[]
   projects Project[]
 }

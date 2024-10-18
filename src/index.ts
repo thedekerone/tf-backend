@@ -4,6 +4,8 @@ import userRoutes from './routes/userRoutes';
 import projectRoutes from './routes/projectRoutes';
 import courseRoutes from './routes/courseRoutes';
 import tagRoutes from './routes/tagRoutes';
+import authRouter from './routes/public/authRouter';
+import { Router } from 'express';
 import errorHandler from './middleware/errorHandler';
 import { setupSwagger } from './swaggerConfig';
 
@@ -19,10 +21,16 @@ app.get('/', (req, res) => {
   res.send('Hello World');
 })
 
-app.use(userRoutes);
-app.use(projectRoutes);
-app.use(courseRoutes);
-app.use(tagRoutes);
+const adminRouter = Router();
+
+adminRouter.use(userRoutes);
+adminRouter.use(projectRoutes);
+adminRouter.use(courseRoutes);
+adminRouter.use(tagRoutes);
+
+app.use('/admin', adminRouter);
+
+app.use('/api', authRouter);
 
 app.use(errorHandler);
 

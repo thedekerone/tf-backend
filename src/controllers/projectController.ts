@@ -53,7 +53,12 @@ export const getProjectById = async (req: Request, res: Response) => {
 
 // Create a new project
 export const createProject = async (req: Request, res: Response) => {
-  const { name, description, courseId, creatorId, maxMembers, status, userIds, skillIds, tagIds } = req.body;
+  const { name, description, courseId, creatorId, userIds, skillIds, tagIds } = req.body;
+
+  if (!name || !description || !courseId || !creatorId) {
+    res.status(400).json({ error: 'Missing required fields' });
+  }
+
   try {
     const project = await prisma.project.create({
       data: {
@@ -61,25 +66,24 @@ export const createProject = async (req: Request, res: Response) => {
         description,
         courseId,
         creatorId,
-        maxMembers,
-        status,
         members: {
-          create: userIds.map((userId: number) => ({
+          create: userIds ? userIds.map((userId: number) => ({
             userId,
             role: 'member',
             status: 'active',
-          })),
+          })) : [],
         },
         skills: {
-          connect: skillIds.map((id: number) => ({ id })),
+          connect: skillIds ? skillIds.map((id: number) => ({ id })) : [],
         },
         tags: {
-          connect: tagIds.map((id: number) => ({ id })),
+          connect: tagIds ? tagIds.map((id: number) => ({ id })) : [],
         },
       },
     });
     res.status(201).json(project);
   } catch (error) {
+    console.error('Error creating project:', error);
     res.status(500).json({ error: 'Failed to create project' });
   }
 };
@@ -87,6 +91,7 @@ export const createProject = async (req: Request, res: Response) => {
 // Update an existing project
 export const updateProject = async (req: Request, res: Response) => {
   const { id } = req.params;
+
   const { name, description, courseId, maxMembers, status, userIds, skillIds, tagIds } = req.body;
   try {
     const project = await prisma.project.update({
