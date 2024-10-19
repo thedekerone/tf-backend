@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction): void | Promise<void> => {
+export const authenticateToken = (req: AuthenticatedRequest, res: Response, next: NextFunction): void | Promise<void> => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   if (!token) {
@@ -32,4 +32,21 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 };
 
 
+export interface AuthenticatedRequest extends Request {
+  user?: JwtPayload;
+}
 
+export const getUserId = (jwt: JwtPayload): number => {
+  console.log(jwt);
+  if (!jwt) {
+    throw new Error('No JWT provided');
+  }
+
+  if (!jwt.id) {
+    throw new Error('No user id provided');
+  }
+
+
+  return jwt.id
+
+}

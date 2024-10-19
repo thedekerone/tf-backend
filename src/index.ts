@@ -1,14 +1,11 @@
 import express from 'express';
 import helmet from 'helmet';
-import userRoutes from './routes/userRoutes';
-import projectRoutes from './routes/projectRoutes';
-import courseRoutes from './routes/courseRoutes';
-import tagRoutes from './routes/tagRoutes';
-import authRouter from './routes/public/authRouter';
-import userProjectsRouter from './routes/public/userProjects';
 import { Router } from 'express';
 import errorHandler from './middleware/errorHandler';
 import { setupSwagger } from './swaggerConfig';
+import { projectRouter } from './routes/project';
+import { courseRouter } from './routes/course';
+import { authRouter } from './routes/auth';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,19 +21,12 @@ app.get('/', (req, res) => {
 
 const adminRouter = Router();
 
-adminRouter.use(userRoutes);
-adminRouter.use(projectRoutes);
-adminRouter.use(courseRoutes);
-adminRouter.use(tagRoutes);
-
 app.use('/admin', adminRouter);
 
-const publicRouter = Router();
+app.use('/project', projectRouter);
+app.use('/course', courseRouter);
+app.use('/auth', authRouter);
 
-publicRouter.use(authRouter);
-publicRouter.use(userProjectsRouter);
-
-app.use('/public', publicRouter);
 
 app.use(errorHandler);
 

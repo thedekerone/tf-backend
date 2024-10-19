@@ -2,6 +2,33 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model ProjectRequest {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  projectId   Int
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  User        User     @relation(fields: [userId], references: [id])
+  Project     Project  @relation(fields: [projectId], references: [id])
+}
+
+model ProjectInvitation {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  projectId   Int
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  User        User     @relation(fields: [userId], references: [id])
+  Project     Project  @relation(fields: [projectId], references: [id])
+}
+
+enum MemberType {
+  MEMBER
+  ADMIN
+}
+
 model Credential {
   id        Int      @id @default(autoincrement())
   userId    Int      @unique
@@ -14,12 +41,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserType {
+  STUDENT
+  TEACHER
+}
+
 model User {
   id        Int             @id @default(autoincrement())
   name      String
   email     String          @unique
-  bio       String?
+  phone     String?
   avatar    String?
+  userType  UserType        @default(STUDENT)
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
   projects  ProjectMember[]
@@ -27,6 +60,8 @@ model User {
   courses   Course[]
   credentials Credential[]
   createdProjects Project[] @relation("UserCreatedProjects")
+  projectRequests ProjectRequest[]
+  projectInvitations ProjectInvitation[]
 }
 
 model ProjectMember {
@@ -38,6 +73,7 @@ model ProjectMember {
   joinedAt  DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  memberType MemberType @default(MEMBER)
   User      User     @relation(fields: [userId], references: [id])
   Project   Project  @relation(fields: [projectId], references: [id])
 }
@@ -53,10 +89,12 @@ model Project {
   Creator     User    @relation("UserCreatedProjects", fields: [creatorId], references: [id])
   createdAt   DateTime?       @default(now())
   updatedAt   DateTime?       @updatedAt
-  members     ProjectMember[]
-  Course      Course          @relation(fields: [courseId], references: [id])
-  skills      Skill[]
-  tags        Tag[]
+  members             ProjectMember[]
+  projectRequests     ProjectRequest[]
+  projectInvitations  ProjectInvitation[]
+  Course              Course          @relation(fields: [courseId], references: [id])
+  skills              Skill[]
+  tags                Tag[]
 }
 
 model Course {
