@@ -5,7 +5,23 @@ import { authenticateToken } from '../../middleware/authMiddleware';
 const router = Router();
 const prisma = new PrismaClient();
 
-router.get('/projects', authenticateToken, async (req, res) => {
+//get course projects
+
+router.get('/courses/:courseId/projects', authenticateToken, async (req, res) => {
+  const { courseId } = req.params;
+  try {
+    const projects = await prisma.project.findMany({
+      where: {
+        courseId: parseInt(courseId),
+      },
+    });
+    res.json(projects);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener los proyectos del curso' });
+  }
+});
+
+router.get('/my-projects', authenticateToken, async (req, res) => {
   const userId = req.user.id;
   try {
     const projects = await prisma.project.findMany({
@@ -22,6 +38,27 @@ router.get('/projects', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Error al obtener los proyectos del usuario' });
   }
 });
+
+router.get('/all-projects', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const projects = await prisma.project.findMany({
+      where: {
+        Course: {
+          users: {
+            some: {
+              id: parseInt(userId),
+            },
+          },
+        }
+      },
+    });
+
+    res.json(projects);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener los proyectos del usuario' });
+  }
+})
 
 router.get('/projects/:projectId', authenticateToken, async (req, res) => {
   const { projectId } = req.params;

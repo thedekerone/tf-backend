@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { getCourses, getCourseById, createCourse, updateCourse, deleteCourse } from '../controllers/courseController';
-import '../docs/courseSwagger';
 
 const router = Router();
 

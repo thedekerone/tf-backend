@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { getAllProjects, getProjectById, createProject, updateProject, deleteProject } from '../controllers/projectController';
-import '../docs/projectSwagger'
 
 const router = Router();
 

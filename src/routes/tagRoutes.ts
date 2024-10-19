@@ -1,8 +1,7 @@
 import { Router } from 'express';
 import { getTags, getTagById, createTag, updateTag, deleteTag } from '../controllers/tagController';
-import '../docs/tagSwagger';
-const router = Router();
 
+const router = Router();
 
 router.post('/tags', createTag);
 

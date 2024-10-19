@@ -5,6 +5,7 @@ import projectRoutes from './routes/projectRoutes';
 import courseRoutes from './routes/courseRoutes';
 import tagRoutes from './routes/tagRoutes';
 import authRouter from './routes/public/authRouter';
+import userProjectsRouter from './routes/public/userProjects';
 import { Router } from 'express';
 import errorHandler from './middleware/errorHandler';
 import { setupSwagger } from './swaggerConfig';
@@ -30,7 +31,12 @@ adminRouter.use(tagRoutes);
 
 app.use('/admin', adminRouter);
 
-app.use('/api', authRouter);
+const publicRouter = Router();
+
+publicRouter.use(authRouter);
+publicRouter.use(userProjectsRouter);
+
+app.use('/public', publicRouter);
 
 app.use(errorHandler);
 
