@@ -36,7 +36,7 @@ export interface AuthenticatedRequest extends Request {
   user?: JwtPayload;
 }
 
-export const getUserId = (jwt: JwtPayload): number => {
+export const getUserId = (jwt: JwtPayload): string => {
   console.log(jwt);
   if (!jwt) {
     throw new Error('No JWT provided');

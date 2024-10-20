@@ -1,117 +1,237 @@
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
+async function userHasProjectInCourse(userId, courseId) {
+  const existingProjectMember = await prisma.projectMember.findFirst({
+    where: {
+      userId: userId,
+      Project: {
+        courseId: courseId,
+      },
+    },
+  });
+  return existingProjectMember !== null;
+}
+
 async function main() {
+  // Create Courses
+  const course1 = await prisma.course.create({
+    data: {
+      name: 'Fullstack Web Development Bootcamp',
+      description: 'An intensive bootcamp to learn fullstack web development using modern technologies.',
+      startDate: new Date('2023-01-01'),
+      endDate: new Date('2023-06-01'),
+      tags: {
+        create: [{ name: 'Fullstack Development' }, { name: 'JavaScript' }],
+      },
+    },
+  });
+
+  const course2 = await prisma.course.create({
+    data: {
+      name: 'Comprehensive Data Science Bootcamp',
+      description: 'A comprehensive bootcamp to master data science and machine learning techniques.',
+      startDate: new Date('2023-02-01'),
+      endDate: new Date('2023-07-01'),
+      tags: {
+        create: [{ name: 'Machine Learning' }, { name: 'Python' }],
+      },
+    },
+  });
+
   // Create Users
   const user1 = await prisma.user.create({
     data: {
-      name: 'Alice',
-      email: 'alice@example.com',
-      bio: 'Software Developer',
-      avatar: 'https://example.com/avatar1.png',
+      name: 'Alice Johnson 123',
+      email: 'alice2.johnson@example.com',
+      phone: '555-123-4567',
+      avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
+      userType: 'STUDENT',
       skills: {
         create: [
-          { name: 'JavaScript', category: 'Programming' },
-          { name: 'React', category: 'Frontend' },
+          { name: 'JavaScript', category: 'Programming Languages' },
+          { name: 'React.js', category: 'Frontend Frameworks' },
+          { name: 'Node.js', category: 'Backend Frameworks' },
         ],
       },
       courses: {
-        create: [
-          {
-            name: 'Fullstack Development',
-            description: 'Learn fullstack development',
-            startDate: new Date('2023-01-01'),
-            endDate: new Date('2023-06-01'),
-            tags: {
-              create: [{ name: 'Web Development' }],
-            },
-          },
-        ],
+        connect: [{ id: course1.id }],
       },
     },
   });
 
   const user2 = await prisma.user.create({
     data: {
-      name: 'Bob',
-      email: 'bob@example.com',
-      bio: 'Data Scientist',
-      avatar: 'https://example.com/avatar2.png',
+      name: 'Robert Smith 123',
+      email: 'robert.smith@example.com',
+      phone: '555-987-6543',
+      avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
+      userType: 'TEACHER',
       skills: {
         create: [
-          { name: 'Python', category: 'Programming' },
-          { name: 'Machine Learning', category: 'Data Science' },
+          { name: 'Python', category: 'Programming Languages' },
+          { name: 'Machine Learning', category: 'Artificial Intelligence' },
+          { name: 'Data Analysis', category: 'Data Science' },
         ],
       },
       courses: {
-        create: [
-          {
-            name: 'Data Science Bootcamp',
-            description: 'Learn data science',
-            startDate: new Date('2023-02-01'),
-            endDate: new Date('2023-07-01'),
-            tags: {
-              create: [{ name: 'Data Science' }],
-            },
-          },
-        ],
+        connect: [{ id: course2.id }],
       },
     },
   });
 
   // Create Projects
-  const project1 = await prisma.project.create({
-    data: {
-      name: 'Project Alpha',
-      description: 'A project to develop an alpha version',
-      maxMembers: 5,
-      courseId: 1,
-      status: 'Active',
-      creatorId: user1.id,
-      skills: {
-        create: [{ name: 'Node.js', category: 'Backend' }],
+  if (!(await userHasProjectInCourse(user1.id, course1.id))) {
+    const project1 = await prisma.project.create({
+      data: {
+        name: 'Alpha Project Management System',
+        description: 'Developing an alpha version of a project management system for small teams.',
+        maxMembers: 5,
+        courseId: course1.id,
+        status: 'Active',
+        creatorId: user1.id,
+        skills: {
+          connectOrCreate: {
+            where: { name: 'Node.js' },
+            create: { name: 'Node.js', category: 'Backend Frameworks' },
+          },
+        },
+        tags: {
+          connectOrCreate: {
+            where: { name: 'Backend Development' },
+            create: { name: 'Backend Development' },
+          },
+        },
       },
-      tags: {
-        create: [{ name: 'Backend Development' }],
-      },
-    },
-  });
+    });
+  }
 
-  const project2 = await prisma.project.create({
-    data: {
-      name: 'Project Beta',
-      description: 'A project to develop a beta version',
-      maxMembers: 3,
-      courseId: 2,
-      status: 'Active',
-      creatorId: user2.id,
-      skills: {
-        create: [{ name: 'Django', category: 'Backend' }],
+  if (!(await userHasProjectInCourse(user1.id, course1.id))) {
+    const project2 = await prisma.project.create({
+      data: {
+        name: 'Gamma Social Media App',
+        description: 'Building a social media application with real-time features.',
+        maxMembers: 4,
+        courseId: course1.id,
+        status: 'Active',
+        creatorId: user1.id,
+        skills: {
+          connectOrCreate: {
+            where: { name: 'React.js' },
+            create: { name: 'React.js', category: 'Frontend Frameworks' },
+          },
+        },
+        tags: {
+          connectOrCreate: {
+            where: { name: 'Frontend Development' },
+            create: { name: 'Frontend Development' },
+          },
+        },
       },
-      tags: {
-        create: [{ name: 'Backend Development' }],
+    });
+  }
+
+  if (!(await userHasProjectInCourse(user1.id, course1.id))) {
+    const project3 = await prisma.project.create({
+      data: {
+        name: 'Delta Mobile App',
+        description: 'Creating a mobile application for task management.',
+        maxMembers: 6,
+        courseId: course1.id,
+        status: 'Active',
+        creatorId: user1.id,
+        skills: {
+          connectOrCreate: {
+            where: { name: 'Flutter' },
+            create: { name: 'Flutter', category: 'Mobile Frameworks' },
+          },
+        },
+        tags: {
+          connectOrCreate: {
+            where: { name: 'Mobile Development' },
+            create: { name: 'Mobile Development' },
+          },
+        },
       },
-    },
-  });
+    });
+  }
 
-  // Create Project Members
-  await prisma.projectMember.create({
-    data: {
-      userId: user1.id,
-      projectId: project1.id,
-      role: 'Developer',
-      status: 'Active',
-    },
-  });
+  if (!(await userHasProjectInCourse(user2.id, course2.id))) {
+    const project4 = await prisma.project.create({
+      data: {
+        name: 'Epsilon AI Chatbot',
+        description: 'Developing an AI-powered chatbot for customer support.',
+        maxMembers: 5,
+        courseId: course2.id,
+        status: 'Active',
+        creatorId: user2.id,
+        skills: {
+          connectOrCreate: {
+            where: { name: 'TensorFlow' },
+            create: { name: 'TensorFlow', category: 'Machine Learning Frameworks' },
+          },
+        },
+        tags: {
+          connectOrCreate: {
+            where: { name: 'AI Development' },
+            create: { name: 'AI Development' },
+          },
+        },
+      },
+    });
+  }
 
-  await prisma.projectMember.create({
-    data: {
-      userId: user2.id,
-      projectId: project2.id,
-      role: 'Developer',
-      status: 'Active',
-    },
-  });
+  if (!(await userHasProjectInCourse(user2.id, course2.id))) {
+    const project5 = await prisma.project.create({
+      data: {
+        name: 'Beta E-commerce Platform',
+        description: 'Creating a beta version of an e-commerce platform with advanced features.',
+        maxMembers: 3,
+        courseId: course2.id,
+        status: 'Active',
+        creatorId: user2.id,
+        skills: {
+          connectOrCreate: {
+            where: { name: 'Django' },
+            create: { name: 'Django', category: 'Backend Frameworks' },
+          },
+        },
+        tags: {
+          connectOrCreate: {
+            where: { name: 'Backend Development' },
+            create: { name: 'Backend Development' },
+          },
+        },
+      },
+    });
+  }
+
+  if (!(await userHasProjectInCourse(user2.id, course2.id))) {
+    const project6 = await prisma.project.create({
+      data: {
+        name: 'Zeta Data Visualization Tool',
+        description: 'Building a tool for visualizing complex data sets.',
+        maxMembers: 4,
+        courseId: course2.id,
+        status: 'Active',
+        creatorId: user2.id,
+        skills: {
+          connectOrCreate: {
+            where: { name: 'D3.js' },
+            create: { name: 'D3.js', category: 'Data Visualization' },
+          },
+        },
+        tags: {
+          connectOrCreate: {
+            where: { name: 'Data Visualization' },
+            create: { name: 'Data Visualization' },
+          },
+        },
+      },
+    });
+  }
+
+
 }
 
 main()

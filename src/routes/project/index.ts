@@ -13,11 +13,13 @@ interface ListProjectsRequest extends AuthenticatedRequest {
 }
 
 router.get('/list-projects', authenticateToken, async (req: ListProjectsRequest, res) => {
-	const courseId = Number(req.query.courseId)
+	const courseId = req.query.courseId
 	const userId = getUserId(req.user as JwtPayload);
 
+	console.log(req.query);
 
-	if (isNaN(courseId)) {
+
+	if (!courseId) {
 		res.status(400).json({ message: 'Invalid course id' });
 		return;
 	}
@@ -26,11 +28,6 @@ router.get('/list-projects', authenticateToken, async (req: ListProjectsRequest,
 		where: {
 			Course: {
 				id: courseId,
-				users: {
-					some: {
-						id: userId,
-					},
-				},
 			},
 		},
 	});
@@ -57,7 +54,7 @@ router.get('/my-projects', authenticateToken, async (req: AuthenticatedRequest, 
 interface CreateProjectRequest extends AuthenticatedRequest {
 	body: {
 		name: string;
-		courseId: number;
+		courseId: string;
 	};
 }
 
@@ -106,9 +103,9 @@ interface ProjectApplicantsRequest extends AuthenticatedRequest {
 }
 
 router.get('/project-applicants', authenticateToken, async (req: ProjectApplicantsRequest, res) => {
-	const projectId = Number(req.query.projectId);
+	const projectId = req.query.projectId
 
-	if (isNaN(projectId)) {
+	if (!projectId) {
 		res.status(400).json({ message: 'Invalid project id' });
 		return;
 	}
@@ -159,10 +156,10 @@ interface ProjectSentInvitations extends AuthenticatedRequest {
 }
 
 router.get('/project-sent-invitations', authenticateToken, async (req: ProjectSentInvitations, res) => {
-	const projectId = Number(req.query.projectId);
+	const projectId = req.query.projectId
 	const userId = getUserId(req.user as JwtPayload);
 
-	if (isNaN(projectId)) {
+	if (!projectId) {
 		res.status(400).json({ message: 'Invalid project id' });
 		return;
 	}
@@ -181,5 +178,57 @@ router.get('/project-sent-invitations', authenticateToken, async (req: ProjectSe
 
 	res.json(invitations);
 })
+
+interface ApplyToProjectRequest extends AuthenticatedRequest {
+	body: {
+		projectId: string;
+	};
+}
+
+router.post('/apply-to-project', authenticateToken, async (req: ApplyToProjectRequest, res) => {
+	const userId = getUserId(req.user as JwtPayload);
+	const { projectId } = req.body;
+
+	if (!projectId) {
+		res.status(400).json({ message: 'Missing project id' });
+		return;
+	}
+
+	const project = await prisma.project.findUnique({
+		where: {
+			id: projectId,
+		},
+	});
+
+	if (!project) {
+		res.status(404).json({ message: 'Project not found' });
+		return;
+	}
+
+	const existingMembership = await prisma.project.findFirst({
+		where: {
+			courseId: project.courseId,
+			members: {
+				some: {
+					id: userId,
+				},
+			},
+		},
+	});
+
+	if (existingMembership) {
+		res.status(400).json({ message: 'You are already a member of a project in this course' });
+		return;
+	}
+
+	const application = await prisma.projectRequest.create({
+		data: {
+			projectId,
+			userId,
+		},
+	});
+
+	res.json(application);
+});
 
 export const projectRouter = router;

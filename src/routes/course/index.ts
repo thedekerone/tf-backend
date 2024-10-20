@@ -38,7 +38,33 @@ router.get('/my-courses', authenticateToken, async (req: AuthenticatedRequest, r
 		console.log(e);
 		res.status(500).json({ message: "Unexpected error" });
 	}
-})
+});
+
+router.get('/get-course/:id', authenticateToken, async (req: AuthenticatedRequest, res) => {
+	try {
+		const courseId = req.params.id
+		if (!courseId) {
+			res.status(400).json({ message: "Invalid course ID" });
+			return;
+		}
+
+		const course = await prisma.course.findUnique({
+			where: { id: courseId },
+		});
+
+		if (!course) {
+			res.status(404).json({ message: "Course not found" });
+			return;
+		}
+
+		res.json(course);
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: "Unexpected error" });
+	}
+});
+
+
 
 
 export const courseRouter = router;
