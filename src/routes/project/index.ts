@@ -55,45 +55,59 @@ interface CreateProjectRequest extends AuthenticatedRequest {
 	body: {
 		name: string;
 		courseId: string;
+		description?: string;
 	};
 }
 
 router.post('/create-project', authenticateToken, async (req: CreateProjectRequest, res) => {
-	if (!req.user) {
-		res.status(403).json({ message: 'Failed to authenticate token' });
-		return;
+	try {
+		const userId = getUserId(req.user as JwtPayload);
+
+		console.log(userId);
+		if (!userId) {
+			res.status(403).json({ message: 'Failed to authenticate token' });
+			return;
+		}
+
+		const { name, courseId } = req.body;
+
+		// Check if the user exists
+		const userExists = await prisma.user.findUnique({
+			where: { id: userId },
+		});
+
+		if (!userExists) {
+			res.status(404).json({ message: 'User not found' });
+			return;
+		}
+
+		if (!name || !courseId) {
+			res.status(400).json({ message: 'Missing required fields' });
+			return;
+		}
+
+		const project = await prisma.project.create({
+			data: {
+				name,
+				Course: {
+					connect: {
+						id: courseId,
+					},
+				},
+				Creator: {
+					connect: {
+						id: userId,
+					},
+				},
+			},
+		});
+
+		res.json(project);
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: 'Internal server error' });
 	}
 
-	const { name, courseId } = req.body;
-
-	if (!name || !courseId) {
-		res.status(400).json({ message: 'Missing required fields' });
-		return;
-	}
-
-	const project = await prisma.project.create({
-		data: {
-			name,
-			Course: {
-				connect: {
-					id: courseId,
-				},
-			},
-			members: {
-				connect: {
-					id: getUserId(req.user),
-					memberType: MemberType.ADMIN
-				},
-			},
-			Creator: {
-				connect: {
-					id: getUserId(req.user),
-				},
-			},
-		},
-	});
-
-	res.json(project);
 });
 
 interface ProjectApplicantsRequest extends AuthenticatedRequest {
