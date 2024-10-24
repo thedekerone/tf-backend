@@ -51,6 +51,44 @@ router.get('/my-projects', authenticateToken, async (req: AuthenticatedRequest, 
 	res.json(projects);
 })
 
+interface MyCourseProjectsRequest extends AuthenticatedRequest {
+	query: {
+		courseId: string;
+	};
+}
+
+router.get('/my-course-project', authenticateToken, async (req: MyCourseProjectsRequest, res) => {
+	const userId = getUserId(req.user as JwtPayload);
+
+	if (!req.query.courseId) {
+		res.status(400).json({ message: 'Invalid course id' });
+		return;
+	}
+
+	const userExists = await prisma.user.findFirst({
+		where: { id: userId },
+	});
+
+
+	if (!userExists) {
+		res.status(404).json({ message: 'User not found' });
+		return;
+	}
+
+	const projects = await prisma.project.findFirst({
+		where: {
+			members: {
+				some: {
+					userId: userId,
+				},
+			},
+			courseId: req.query.courseId
+		}
+	});
+
+	res.json(projects);
+})
+
 interface CreateProjectRequest extends AuthenticatedRequest {
 	body: {
 		name: string;
@@ -72,9 +110,11 @@ router.post('/create-project', authenticateToken, async (req: CreateProjectReque
 		const { name, courseId } = req.body;
 
 		// Check if the user exists
-		const userExists = await prisma.user.findUnique({
+		const userExists = await prisma.user.findFirst({
 			where: { id: userId },
 		});
+
+		console.log(userExists);
 
 		if (!userExists) {
 			res.status(404).json({ message: 'User not found' });
@@ -97,6 +137,14 @@ router.post('/create-project', authenticateToken, async (req: CreateProjectReque
 				Creator: {
 					connect: {
 						id: userId,
+					},
+				},
+				members: {
+					create: {
+						userId,
+						memberType: MemberType.ADMIN,
+						role: 'Creator',
+						status: "ACCEPTED"
 					},
 				},
 			},
