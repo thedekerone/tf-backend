@@ -2,6 +2,7 @@ import { Request, Router } from 'express';
 import prisma from '../../prismaClient';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { AuthenticatedRequest, authenticateToken, getUserId } from '../../middleware/authMiddleware';
 
 const router = Router();
 
@@ -92,5 +93,26 @@ router.post('/signup', async (req: SignupRequest, res) => {
 		res.status(500).json({ message: 'Internal Server Error', error: (error as Error).message });
 	}
 });
+
+router.get('/is-authenticated', authenticateToken, async (req: AuthenticatedRequest, res) => {
+	try {
+		const userId = getUserId(req.user as jwt.JwtPayload);
+
+		const user = await prisma.user.findFirst({
+			where: {
+				id: userId
+			}
+		});
+
+		if (!user) {
+			res.status(404).json({ message: 'User not found' });
+			return;
+		}
+
+		res.json(user);
+	} catch (error) {
+		res.status(500).json({ message: 'Internal Server Error', error: (error as Error).message });
+	}
+})
 
 export const authRouter = router;
