@@ -13,42 +13,51 @@ interface ListProjectsRequest extends AuthenticatedRequest {
 }
 
 router.get('/list-projects', authenticateToken, async (req: ListProjectsRequest, res) => {
-	const courseId = req.query.courseId
-	const userId = getUserId(req.user as JwtPayload);
+	try {
+		const courseId = req.query.courseId
+		const userId = getUserId(req.user as JwtPayload);
 
-	console.log(req.query);
+		console.log(req.query);
 
+		if (!courseId) {
+			res.status(400).json({ message: 'Invalid course id' });
+			return;
+		}
 
-	if (!courseId) {
-		res.status(400).json({ message: 'Invalid course id' });
-		return;
-	}
-
-	const projects = await prisma.project.findMany({
-		where: {
-			Course: {
-				id: courseId,
+		const projects = await prisma.project.findMany({
+			where: {
+				Course: {
+					id: courseId,
+				},
 			},
-		},
-	});
+		});
 
-	res.json(projects);
+		res.json(projects);
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: 'Internal server error' });
+	}
 });
 
 router.get('/my-projects', authenticateToken, async (req: AuthenticatedRequest, res) => {
-	const userId = getUserId(req.user as JwtPayload);
+	try {
+		const userId = getUserId(req.user as JwtPayload);
 
-	const projects = await prisma.project.findMany({
-		where: {
-			members: {
-				some: {
-					id: userId,
+		const projects = await prisma.project.findMany({
+			where: {
+				members: {
+					some: {
+						id: userId,
+					},
 				},
 			},
-		},
-	});
+		});
 
-	res.json(projects);
+		res.json(projects);
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: 'Internal server error' });
+	}
 })
 
 interface MyCourseProjectsRequest extends AuthenticatedRequest {
@@ -58,35 +67,39 @@ interface MyCourseProjectsRequest extends AuthenticatedRequest {
 }
 
 router.get('/my-course-project', authenticateToken, async (req: MyCourseProjectsRequest, res) => {
-	const userId = getUserId(req.user as JwtPayload);
+	try {
+		const userId = getUserId(req.user as JwtPayload);
 
-	if (!req.query.courseId) {
-		res.status(400).json({ message: 'Invalid course id' });
-		return;
-	}
-
-	const userExists = await prisma.user.findFirst({
-		where: { id: userId },
-	});
-
-
-	if (!userExists) {
-		res.status(404).json({ message: 'User not found' });
-		return;
-	}
-
-	const projects = await prisma.project.findFirst({
-		where: {
-			members: {
-				some: {
-					userId: userId,
-				},
-			},
-			courseId: req.query.courseId
+		if (!req.query.courseId) {
+			res.status(400).json({ message: 'Invalid course id' });
+			return;
 		}
-	});
 
-	res.json(projects);
+		const userExists = await prisma.user.findFirst({
+			where: { id: userId },
+		});
+
+		if (!userExists) {
+			res.status(404).json({ message: 'User not found' });
+			return;
+		}
+
+		const projects = await prisma.project.findFirst({
+			where: {
+				members: {
+					some: {
+						userId: userId,
+					},
+				},
+				courseId: req.query.courseId
+			}
+		});
+
+		res.json(projects);
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: 'Internal server error' });
+	}
 })
 
 interface CreateProjectRequest extends AuthenticatedRequest {
@@ -165,50 +178,60 @@ interface ProjectApplicantsRequest extends AuthenticatedRequest {
 }
 
 router.get('/project-applicants', authenticateToken, async (req: ProjectApplicantsRequest, res) => {
-	const projectId = req.query.projectId
+	try {
+		const projectId = req.query.projectId
 
-	if (!projectId) {
-		res.status(400).json({ message: 'Invalid project id' });
-		return;
-	}
+		if (!projectId) {
+			res.status(400).json({ message: 'Invalid project id' });
+			return;
+		}
 
-	const project = await prisma.project.findUnique({
-		where: {
-			id: projectId,
-		},
-		include: {
-			projectRequests: {
-				include: {
-					User: true,
+		const project = await prisma.project.findUnique({
+			where: {
+				id: projectId,
+			},
+			include: {
+				projectRequests: {
+					include: {
+						User: true,
+					},
 				},
 			},
-		},
-	});
+		});
 
-	if (!project) {
-		res.status(404).json({ message: 'Project not found' });
-		return;
+		if (!project) {
+			res.status(404).json({ message: 'Project not found' });
+			return;
+		}
+
+		res.json(project.projectRequests);
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: 'Internal server error' });
 	}
-
-	res.json(project.projectRequests);
 })
 
 interface ProjectsApplications extends AuthenticatedRequest {
 }
 
 router.get('/projects-applications', authenticateToken, async (req: ProjectsApplications, res) => {
-	const userId = getUserId(req.user as JwtPayload);
+	try {
+		const userId = getUserId(req.user as JwtPayload);
 
-	const projects = await prisma.projectRequest.findMany({
-		where: {
-			userId,
-		},
-		include: {
-			Project: true,
-		},
-	});
+		const projects = await prisma.projectRequest.findMany({
+			where: {
+				userId,
+			},
+			include: {
+				Project: true,
+			},
+		});
 
-	res.json(projects);
+		res.json(projects);
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: 'Internal server error' });
+	}
 });
 
 interface ProjectSentInvitations extends AuthenticatedRequest {
@@ -218,27 +241,32 @@ interface ProjectSentInvitations extends AuthenticatedRequest {
 }
 
 router.get('/project-sent-invitations', authenticateToken, async (req: ProjectSentInvitations, res) => {
-	const projectId = req.query.projectId
-	const userId = getUserId(req.user as JwtPayload);
+	try {
+		const projectId = req.query.projectId
+		const userId = getUserId(req.user as JwtPayload);
 
-	if (!projectId) {
-		res.status(400).json({ message: 'Invalid project id' });
-		return;
-	}
+		if (!projectId) {
+			res.status(400).json({ message: 'Invalid project id' });
+			return;
+		}
 
-	const invitations = await prisma.projectRequest.findMany({
-		where: {
-			projectId,
-			Project: {
-				creatorId: userId,
+		const invitations = await prisma.projectRequest.findMany({
+			where: {
+				projectId,
+				Project: {
+					creatorId: userId,
+				},
 			},
-		},
-		include: {
-			User: true,
-		},
-	});
+			include: {
+				User: true,
+			},
+		});
 
-	res.json(invitations);
+		res.json(invitations);
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: 'Internal server error' });
+	}
 })
 
 interface ApplyToProjectRequest extends AuthenticatedRequest {
@@ -248,49 +276,54 @@ interface ApplyToProjectRequest extends AuthenticatedRequest {
 }
 
 router.post('/apply-to-project', authenticateToken, async (req: ApplyToProjectRequest, res) => {
-	const userId = getUserId(req.user as JwtPayload);
-	const { projectId } = req.body;
+	try {
+		const userId = getUserId(req.user as JwtPayload);
+		const { projectId } = req.body;
 
-	if (!projectId) {
-		res.status(400).json({ message: 'Missing project id' });
-		return;
-	}
+		if (!projectId) {
+			res.status(400).json({ message: 'Missing project id' });
+			return;
+		}
 
-	const project = await prisma.project.findUnique({
-		where: {
-			id: projectId,
-		},
-	});
+		const project = await prisma.project.findUnique({
+			where: {
+				id: projectId,
+			},
+		});
 
-	if (!project) {
-		res.status(404).json({ message: 'Project not found' });
-		return;
-	}
+		if (!project) {
+			res.status(404).json({ message: 'Project not found' });
+			return;
+		}
 
-	const existingMembership = await prisma.project.findFirst({
-		where: {
-			courseId: project.courseId,
-			members: {
-				some: {
-					id: userId,
+		const existingMembership = await prisma.project.findFirst({
+			where: {
+				courseId: project.courseId,
+				members: {
+					some: {
+						id: userId,
+					},
 				},
 			},
-		},
-	});
+		});
 
-	if (existingMembership) {
-		res.status(400).json({ message: 'You are already a member of a project in this course' });
-		return;
+		if (existingMembership) {
+			res.status(400).json({ message: 'You are already a member of a project in this course' });
+			return;
+		}
+
+		const application = await prisma.projectRequest.create({
+			data: {
+				projectId,
+				userId,
+			},
+		});
+
+		res.json(application);
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: 'Internal server error' });
 	}
-
-	const application = await prisma.projectRequest.create({
-		data: {
-			projectId,
-			userId,
-		},
-	});
-
-	res.json(application);
 });
 
 export const projectRouter = router;
