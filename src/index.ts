@@ -9,6 +9,7 @@ import { authRouter } from './routes/auth';
 import { courseRouter } from './routes/course';
 
 const app = express();
+const baseRouter = Router();
 const PORT = process.env.PORT || 3000;
 
 app.use(helmet());
@@ -21,17 +22,19 @@ app.use(express.json());
 setupSwagger(app);
 
 
-app.get('/', (req, res) => {
+baseRouter.get('/', (req, res) => {
   res.send('Hello World');
-})
+});
 
 const adminRouter = Router();
 
-app.use('/admin', adminRouter);
+baseRouter.use('/admin', adminRouter);
 
-app.use('/project', projectRouter);
-app.use('/auth', authRouter);
-app.use('/course', courseRouter);
+baseRouter.use('/project', projectRouter);
+baseRouter.use('/auth', authRouter);
+baseRouter.use('/course', courseRouter);
+
+app.use('/tf-backend', baseRouter);
 
 
 app.use(errorHandler);
@@ -40,4 +43,5 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
 
