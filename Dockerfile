@@ -1,7 +1,10 @@
 # Backend Dockerfile
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
+
+# Install additional dependencies for bcrypt
+RUN apk add --no-cache python3 make g++ 
 
 # Install dependencies
 COPY package*.json ./
@@ -17,9 +20,12 @@ RUN npx prisma generate
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine AS production
+FROM node:22-alpine AS production
 
 WORKDIR /app
+
+# Install runtime dependencies for bcrypt
+RUN apk add --no-cache python3 make g++
 
 # Copy built assets and dependencies
 COPY --from=builder /app/dist ./dist
@@ -29,7 +35,7 @@ COPY --from=builder /app/prisma ./prisma
 
 # Expose port
 EXPOSE 5000
-EXPOSE 5555
 
 # Start the application
 CMD ["npm", "start"]
+

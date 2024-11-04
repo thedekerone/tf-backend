@@ -9,8 +9,18 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/tf-backend
       - NODE_ENV=development
+      # Add Node.js memory flags
+      - NODE_OPTIONS="--max-old-space-size=2048"
+      - JWT_SECRET=d1f2e3a4u5l6t7s8e9c0r1e2t3
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - .:/app
       - /app/node_modules
@@ -19,9 +29,24 @@ services:
         echo 'Waiting for database to be ready...' &&
         npx wait-on tcp:db:5432 &&
         npx prisma migrate deploy &&
-        npm run dev
+        npm install &&
+        npm run build &&
+        NODE_ENV=development node --max-old-space-size=2048 dist/index.js &&
+        npx prisma studio 
       "
-
+    restart: unless-stopped
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/tf-backend"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
   studio:
     build: 
       context: .
@@ -30,13 +55,39 @@ services:
       - "5555:5555"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/tf-backend
+      - NODE_ENV=development
+      # Add Node.js memory flags
+      - NODE_OPTIONS="--max-old-space-size=2048"
+      - JWT_SECRET=d1f2e3a4u5l6t7s8e9c0r1e2t3
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - .:/app
       - /app/node_modules
-    command: npx prisma studio --port 5555 
-    
+    command: >
+      sh -c "
+        echo 'Waiting for database to be ready...' &&
+        npx wait-on tcp:db:5432 &&
+        npx prisma migrate deploy &&
+        npm install &&
+        npm run build &&
+        npx prisma studio 
+      "
+    restart: unless-stopped
+    # Health check
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   db:
     image: postgres:14-alpine
     ports:
@@ -44,9 +95,17 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=mydatabase
+      - POSTGRES_DB=tf-backend
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tf-backend"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+
+

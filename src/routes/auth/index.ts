@@ -1,6 +1,6 @@
 import { Request, Router } from 'express';
 import prisma from '../../prismaClient';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { AuthenticatedRequest, authenticateToken, getUserId } from '../../middleware/authMiddleware';
 
@@ -36,7 +36,7 @@ router.post('/login', async (req: LoginRequest, res) => {
 			res.status(404).json({ message: 'User not found' });
 			return;
 		}
-		if (!bcrypt.compareSync(req.body.password, user.password)) {
+		if (!(await bcrypt.compareSync(req.body.password, user.password))) {
 			res.status(401).json({ message: 'Invalid password' });
 			return;
 		}
@@ -73,7 +73,7 @@ router.post('/signup', async (req: SignupRequest, res) => {
 			return;
 		}
 
-		const encryptedPassword = bcrypt.hashSync(req.body.password, 10);
+		const encryptedPassword = await bcrypt.hash(req.body.password, 10);
 
 		const user = await prisma.user.create({
 			data: {
