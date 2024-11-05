@@ -107,6 +107,7 @@ interface CreateProjectRequest extends AuthenticatedRequest {
 		name: string;
 		courseId: string;
 		description?: string;
+		teamName?: string;
 	};
 }
 
@@ -120,7 +121,7 @@ router.post('/create-project', authenticateToken, async (req: CreateProjectReque
 			return;
 		}
 
-		const { name, courseId } = req.body;
+		const { name, courseId, description, teamName } = req.body;
 
 		// Check if the user exists
 		const userExists = await prisma.user.findFirst({
@@ -142,6 +143,9 @@ router.post('/create-project', authenticateToken, async (req: CreateProjectReque
 		const project = await prisma.project.create({
 			data: {
 				name,
+				description,
+				teamName,
+				maxMembers:5,
 				Course: {
 					connect: {
 						id: courseId,

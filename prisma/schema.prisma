@@ -81,6 +81,7 @@ model ProjectMember {
 model Project {
   id          String          @id @default(uuid())
   name        String
+  teamName    String?
   description String?
   maxMembers  Int?
   courseId    String
