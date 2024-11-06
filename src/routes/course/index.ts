@@ -113,4 +113,56 @@ router.get(
 	},
 );
 
+router.post("/join-course/:id", authenticateToken, async (req: AuthenticatedRequest, res) => {
+	const courseId = req.params.id;
+	if (!courseId) {
+		res.status(400).json({
+			message: "Invalid course ID",
+		});
+		return;
+	}
+
+	const userId = getUserId(req.user as JwtPayload);
+
+	try {
+		const course = await prisma.course.findUnique({
+			where: { id: courseId },
+		});
+
+		if (!course) {
+			res.status(404).json({
+				message: "Course not found",
+			});
+			return;
+		}
+
+		const user = await prisma.user.findUnique({
+			where: { id: userId },
+		});
+
+		if (!user) {
+			res.status(404).json({
+				message: "User not found",
+			});
+			return;
+		}
+
+		await prisma.course.update({
+			where: { id: courseId },
+			data: {
+				users: {
+					connect: {
+						id: userId,
+					},
+				},
+			},
+		});
+
+		res.json({ message: "User joined course" });
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: "Unexpected error" });
+	}
+}
+
 export const courseRouter = router;
