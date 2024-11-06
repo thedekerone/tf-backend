@@ -163,6 +163,6 @@ router.post("/join-course/:id", authenticateToken, async (req: AuthenticatedRequ
 		console.log(e);
 		res.status(500).json({ message: "Unexpected error" });
 	}
-}
+})
 
 export const courseRouter = router;
