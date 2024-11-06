@@ -28,7 +28,6 @@ services:
       sh -c "
         echo 'Waiting for database to be ready...' &&
         npx wait-on tcp:db:5432 &&
-        npx prisma migrate deploy &&
         npm install &&
         npm run build &&
         NODE_ENV=development node --max-old-space-size=2048 dist/index.js &&
@@ -75,7 +74,6 @@ services:
       sh -c "
         echo 'Waiting for database to be ready...' &&
         npx wait-on tcp:db:5432 &&
-        npx prisma migrate deploy &&
         npm install &&
         npm run build &&
         npx prisma studio 
