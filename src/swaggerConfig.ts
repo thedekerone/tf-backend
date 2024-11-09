@@ -16,6 +16,10 @@ export const options = {
       url: 'http://localhost:3000/tf-backend',
       description: 'Development server',
     },
+    {
+      url: 'https://velvetlettr.com/tf-backend/',
+      description: 'Production server',
+    },
   ],
 
   apis: ['./src/docs/*.ts'], // Path to the API docs
