@@ -330,4 +330,206 @@ router.post('/apply-to-project', authenticateToken, async (req: ApplyToProjectRe
 	}
 });
 
+interface UpdateProjectRequestStatus extends AuthenticatedRequest {
+	body: {
+		requestId: string;
+		acceptRequest: boolean;
+	};
+}
+
+router.post('/update-project-request-status', authenticateToken, async (req: UpdateProjectRequestStatus, res) => {
+	try {
+		const userId = getUserId(req.user as JwtPayload);
+		const { requestId, acceptRequest } = req.body;
+
+		if (!requestId || acceptRequest === undefined) {
+			res.status(400).json({ message: 'Missing request id or accept status' });
+			return;
+		}
+
+		const status = acceptRequest ? 'ACCEPTED' : 'REJECTED';
+
+		const projectRequest = await prisma.projectRequest.findUnique({
+			where: { id: requestId },
+			include: { Project: true },
+		});
+
+		if (!projectRequest) {
+			res.status(404).json({ message: 'Project request not found' });
+			return;
+		}
+
+		if (projectRequest.Project.creatorId !== userId) {
+			res.status(403).json({ message: 'You are not authorized to update this request' });
+			return;
+		}
+
+		const updatedRequest = await prisma.projectRequest.update({
+			where: { id: requestId },
+			data: { status },
+		});
+
+		if (status === 'ACCEPTED') {
+			await prisma.projectMember.create({
+				data: {
+					userId: projectRequest.userId,
+					projectId: projectRequest.projectId,
+					role: 'Member',
+					status: 'ACCEPTED',
+					memberType: MemberType.MEMBER,
+				},
+			});
+		}
+
+		res.json(updatedRequest);
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: 'Internal server error' });
+	}
+});
+
+interface SendInvitationRequest extends AuthenticatedRequest {
+  body: {
+    userId: string;
+    projectId: string;
+  };
+}
+
+router.post('/send-invitation', authenticateToken, async (req: SendInvitationRequest, res) => {
+  try {
+    const { userId, projectId } = req.body;
+    const senderId = getUserId(req.user as JwtPayload);
+
+    if (!userId || !projectId) {
+      res.status(400).json({ message: 'Missing user id or project id' });
+      return;
+    }
+
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      res.status(404).json({ message: 'Project not found' });
+      return;
+    }
+
+    if (project.creatorId !== senderId) {
+      res.status(403).json({ message: 'You are not authorized to send invitations for this project' });
+      return;
+    }
+
+    const invitation = await prisma.projectInvitation.create({
+      data: {
+        userId,
+        projectId,
+      },
+    });
+
+    res.json(invitation);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+interface RespondInvitationRequest extends AuthenticatedRequest {
+  body: {
+    invitationId: string;
+    accept: boolean;
+  };
+}
+
+router.post('/respond-invitation', authenticateToken, async (req: RespondInvitationRequest, res) => {
+  try {
+    const { invitationId, accept } = req.body;
+    const userId = getUserId(req.user as JwtPayload);
+
+    if (!invitationId || accept === undefined) {
+      res.status(400).json({ message: 'Missing invitation id or accept status' });
+      return;
+    }
+
+    const invitation = await prisma.projectInvitation.findUnique({
+      where: { id: invitationId },
+      include: { Project: true },
+    });
+
+    if (!invitation) {
+      res.status(404).json({ message: 'Invitation not found' });
+      return;
+    }
+
+    if (invitation.userId !== userId) {
+      res.status(403).json({ message: 'You are not authorized to respond to this invitation' });
+      return;
+    }
+
+    const status = accept ? 'ACCEPTED' : 'REJECTED';
+
+    const updatedInvitation = await prisma.projectInvitation.update({
+      where: { id: invitationId },
+      data: { status },
+    });
+
+    if (status === 'ACCEPTED') {
+      await prisma.projectMember.create({
+        data: {
+          userId: invitation.userId,
+          projectId: invitation.projectId,
+          role: 'Member',
+          status: 'ACCEPTED',
+          memberType: MemberType.MEMBER,
+        },
+      });
+    }
+
+    res.json(updatedInvitation);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+interface ReceivedInvitationsRequest extends AuthenticatedRequest {}
+
+router.get('/received-invitations', authenticateToken, async (req: ReceivedInvitationsRequest, res) => {
+  try {
+    const userId = getUserId(req.user as JwtPayload);
+
+    const invitations = await prisma.projectInvitation.findMany({
+      where: { userId },
+      include: { Project: true },
+    });
+
+    res.json(invitations);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+interface SentInvitationsRequest extends AuthenticatedRequest {}
+
+router.get('/sent-invitations', authenticateToken, async (req: SentInvitationsRequest, res) => {
+  try {
+    const userId = getUserId(req.user as JwtPayload);
+
+    const invitations = await prisma.projectInvitation.findMany({
+      where: {
+        Project: {
+          creatorId: userId,
+        },
+      },
+      include: { User: true },
+    });
+
+    res.json(invitations);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 export const projectRouter = router;
+

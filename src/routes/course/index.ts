@@ -165,4 +165,5 @@ router.post("/join-course/:id", authenticateToken, async (req: AuthenticatedRequ
 	}
 })
 
+
 export const courseRouter = router;
