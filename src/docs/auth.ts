@@ -43,7 +43,7 @@
  *         email:
  *           type: string
  * 
- * /auth/login:
+ * /tf-backend/auth/login:
  *   post:
  *     summary: Login a user
  *     tags: [Auth]
@@ -72,7 +72,7 @@
  *       500:
  *         description: Internal Server Error
  * 
- * /auth/signup:
+ * /tf-backend/auth/signup:
  *   post:
  *     summary: Signup a new user
  *     tags: [Auth]
@@ -94,7 +94,7 @@
  *       500:
  *         description: Internal Server Error
  * 
- * /auth/is-authenticated:
+ * /tf-backend/auth/is-authenticated:
  *   get:
  *     summary: Check if the user is authenticated
  *     tags: [Auth]

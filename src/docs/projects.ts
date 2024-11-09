@@ -49,7 +49,7 @@ import swaggerUi from 'swagger-ui-express';
 
 /**
  * @swagger
- * /projects/list-projects:
+ * /tf-backend/projects/list-projects:
  *   get:
  *     summary: List all projects for a specific course
  *     tags: [Projects]
@@ -79,7 +79,7 @@ import swaggerUi from 'swagger-ui-express';
 
 /**
  * @swagger
- * /projects/my-projects:
+ * /tf-backend/projects/my-projects:
  *   get:
  *     summary: List all projects for the authenticated user
  *     tags: [Projects]
@@ -100,7 +100,7 @@ import swaggerUi from 'swagger-ui-express';
 
 /**
  * @swagger
- * /projects/my-course-project:
+ * /tf-backend/projects/my-course-project:
  *   get:
  *     summary: Get the project for the authenticated user in a specific course
  *     tags: [Projects]
@@ -128,7 +128,7 @@ import swaggerUi from 'swagger-ui-express';
 
 /**
  * @swagger
- * /projects/create-project:
+ * /tf-backend/projects/create-project:
  *   post:
  *     summary: Create a new project
  *     tags: [Projects]
@@ -169,7 +169,7 @@ import swaggerUi from 'swagger-ui-express';
 
 /**
  * @swagger
- * /projects/project-applicants:
+ * /tf-backend/projects/project-applicants:
  *   get:
  *     summary: Get all applicants for a specific project
  *     tags: [Projects]
@@ -199,7 +199,7 @@ import swaggerUi from 'swagger-ui-express';
 
 /**
  * @swagger
- * /projects/projects-applications:
+ * /tf-backend/projects/projects-applications:
  *   get:
  *     summary: Get all project applications for the authenticated user
  *     tags: [Projects]
@@ -220,7 +220,7 @@ import swaggerUi from 'swagger-ui-express';
 
 /**
  * @swagger
- * /projects/project-sent-invitations:
+ * /tf-backend/projects/project-sent-invitations:
  *   get:
  *     summary: Get all sent invitations for a specific project
  *     tags: [Projects]
@@ -250,7 +250,7 @@ import swaggerUi from 'swagger-ui-express';
 
 /**
  * @swagger
- * /projects/apply-to-project:
+ * /tf-backend/projects/apply-to-project:
  *   post:
  *     summary: Apply to a specific project
  *     security:
@@ -284,7 +284,7 @@ import swaggerUi from 'swagger-ui-express';
 
 /**
  * @swagger
- * /projects/update-project-request-status:
+ * /tf-backend/projects/update-project-request-status:
  *   post:
  *     summary: Update the status of a project request
  *     security:
@@ -323,7 +323,7 @@ import swaggerUi from 'swagger-ui-express';
 
 /**
  * @swagger
- * /projects/send-invitation:
+ * /tf-backend/projects/send-invitation:
  *   post:
  *     summary: Send an invitation to a user for a specific project
  *     security:
@@ -362,7 +362,7 @@ import swaggerUi from 'swagger-ui-express';
 
 /**
  * @swagger
- * /projects/respond-invitation:
+ * /tf-backend/projects/respond-invitation:
  *   post:
  *     summary: Respond to a project invitation
  *     security:
@@ -401,7 +401,7 @@ import swaggerUi from 'swagger-ui-express';
 
 /**
  * @swagger
- * /projects/received-invitations:
+ * /tf-backend/projects/received-invitations:
  *   get:
  *     summary: Get all received invitations for the authenticated user
  *     security:
@@ -422,7 +422,7 @@ import swaggerUi from 'swagger-ui-express';
 
 /**
  * @swagger
- * /projects/sent-invitations:
+ * /tf-backend/projects/sent-invitations:
  *   get:
  *     summary: Get all sent invitations for the authenticated user
  *     security:

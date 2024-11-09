@@ -14,7 +14,7 @@
 
 /**
  * @swagger
- * /course/list-courses:
+ * /tf-backend/course/list-courses:
  *   get:
  *     summary: Retrieve a list of all courses
  *     security:
@@ -33,7 +33,7 @@
  *       500:
  *         description: Unexpected error
  *
- * /course/my-courses:
+ * /tf-backend/course/my-courses:
  *   get:
  *     summary: Retrieve a list of courses the authenticated user is enrolled in
  *     security:
@@ -52,7 +52,7 @@
  *       500:
  *         description: Unexpected error
  *
- * /course/get-course/{id}:
+ * /tf-backend/course/get-course/{id}:
  *   get:
  *     summary: Retrieve a specific course by ID
  *     security:
@@ -80,7 +80,7 @@
  *       500:
  *         description: Unexpected error
  *
- * /course/get-users-by-course/{id}:
+ * /tf-backend/course/get-users-by-course/{id}:
  *   get:
  *     summary: Retrieve a list of users enrolled in a specific course
  *     security:
@@ -108,7 +108,7 @@
  *       500:
  *         description: Unexpected error
  *
- * /course/join-course/{id}:
+ * /tf-backend/course/join-course/{id}:
  *   post:
  *     summary: Enroll the authenticated user in a specific course
  *     security:
