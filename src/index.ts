@@ -19,7 +19,8 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 app.use(express.json());
-setupSwagger(app);
+
+setupSwagger(baseRouter);
 
 
 baseRouter.get('/', (req, res) => {
