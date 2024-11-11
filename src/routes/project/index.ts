@@ -92,6 +92,10 @@ router.get('/my-course-project', authenticateToken, async (req: MyCourseProjects
 					},
 				},
 				courseId: req.query.courseId
+			},
+			include:{
+				creator: true,
+				members:true
 			}
 		});
 
@@ -101,6 +105,39 @@ router.get('/my-course-project', authenticateToken, async (req: MyCourseProjects
 		res.status(500).json({ message: 'Internal server error' });
 	}
 })
+
+interface ProjectMembersRequest extends AuthenticatedRequest {
+  query: {
+    projectId: string;
+  };
+}
+
+router.get('/project-members', authenticateToken, async (req: ProjectMembersRequest, res) => {
+  try {
+    const { projectId } = req.query;
+
+    if (!projectId) {
+      res.status(400).json({ message: 'Invalid project id' });
+      return;
+    }
+
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      include: { members: true },
+    });
+
+    if (!project) {
+      res.status(404).json({ message: 'Project not found' });
+      return;
+    }
+
+    res.json(project.members);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 
 interface CreateProjectRequest extends AuthenticatedRequest {
 	body: {
