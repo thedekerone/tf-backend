@@ -291,7 +291,7 @@ router.get('/project-sent-invitations', authenticateToken, async (req: ProjectSe
 			return;
 		}
 
-		const invitations = await prisma.projectRequest.findMany({
+		const invitations = await prisma.projectInvitations.findMany({
 			where: {
 				projectId,
 				Project: {
