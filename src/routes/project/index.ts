@@ -94,7 +94,7 @@ router.get('/my-course-project', authenticateToken, async (req: MyCourseProjects
 				courseId: req.query.courseId
 			},
 			include:{
-				creator: true,
+				Creator: true,
 				members:true
 			}
 		});

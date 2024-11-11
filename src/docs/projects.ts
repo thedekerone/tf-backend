@@ -53,7 +53,8 @@ import swaggerUi from 'swagger-ui-express';
  *   get:
  *     summary: List all projects for a specific course
  *     tags: [Projects]
- 
+ *     security:
+ *      - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: courseId
@@ -104,6 +105,8 @@ import swaggerUi from 'swagger-ui-express';
  *   get:
  *     summary: Get the project for the authenticated user in a specific course
  *     tags: [Projects]
+ *     security:
+ *      - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: courseId
@@ -173,6 +176,8 @@ import swaggerUi from 'swagger-ui-express';
  *   get:
  *     summary: Get all applicants for a specific project
  *     tags: [Projects]
+ *     security:
+ *      - bearerAuth: []
  *     parameters:
  *       - in: query
  *         name: projectId
