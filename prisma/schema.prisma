@@ -83,6 +83,8 @@ model Project {
   name        String
   teamName    String?
   description String?
+  keywords    String?
+  skills      String?
   maxMembers  Int?
   courseId    String
   status      String?

@@ -93,9 +93,9 @@ router.get('/my-course-project', authenticateToken, async (req: MyCourseProjects
 				},
 				courseId: req.query.courseId
 			},
-			include:{
+			include: {
 				Creator: true,
-				members:true
+				members: true
 			}
 		});
 
@@ -107,35 +107,35 @@ router.get('/my-course-project', authenticateToken, async (req: MyCourseProjects
 })
 
 interface ProjectMembersRequest extends AuthenticatedRequest {
-  query: {
-    projectId: string;
-  };
+	query: {
+		projectId: string;
+	};
 }
 
 router.get('/project-members', authenticateToken, async (req: ProjectMembersRequest, res) => {
-  try {
-    const { projectId } = req.query;
+	try {
+		const { projectId } = req.query;
 
-    if (!projectId) {
-      res.status(400).json({ message: 'Invalid project id' });
-      return;
-    }
+		if (!projectId) {
+			res.status(400).json({ message: 'Invalid project id' });
+			return;
+		}
 
-    const project = await prisma.project.findUnique({
-      where: { id: projectId },
-      include: { members: true },
-    });
+		const project = await prisma.project.findUnique({
+			where: { id: projectId },
+			include: { members: true },
+		});
 
-    if (!project) {
-      res.status(404).json({ message: 'Project not found' });
-      return;
-    }
+		if (!project) {
+			res.status(404).json({ message: 'Project not found' });
+			return;
+		}
 
-    res.json(project.members);
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({ message: 'Internal server error' });
-  }
+		res.json(project.members);
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: 'Internal server error' });
+	}
 });
 
 
@@ -144,6 +144,8 @@ interface CreateProjectRequest extends AuthenticatedRequest {
 		name: string;
 		courseId: string;
 		description?: string;
+		keywords?: string;
+		skills?: string;
 		teamName?: string;
 	};
 }
@@ -158,7 +160,7 @@ router.post('/create-project', authenticateToken, async (req: CreateProjectReque
 			return;
 		}
 
-		const { name, courseId, description, teamName } = req.body;
+		const { name, courseId, description, keywords, skills, teamName } = req.body;
 
 		// Check if the user exists
 		const userExists = await prisma.user.findFirst({
@@ -181,8 +183,10 @@ router.post('/create-project', authenticateToken, async (req: CreateProjectReque
 			data: {
 				name,
 				description,
+				keywords,
+				skills,
 				teamName,
-				maxMembers:5,
+				maxMembers: 5,
 				Course: {
 					connect: {
 						id: courseId,
@@ -426,146 +430,146 @@ router.post('/update-project-request-status', authenticateToken, async (req: Upd
 });
 
 interface SendInvitationRequest extends AuthenticatedRequest {
-  body: {
-    userId: string;
-    projectId: string;
-  };
+	body: {
+		userId: string;
+		projectId: string;
+	};
 }
 
 router.post('/send-invitation', authenticateToken, async (req: SendInvitationRequest, res) => {
-  try {
-    const { userId, projectId } = req.body;
-    const senderId = getUserId(req.user as JwtPayload);
+	try {
+		const { userId, projectId } = req.body;
+		const senderId = getUserId(req.user as JwtPayload);
 
-    if (!userId || !projectId) {
-      res.status(400).json({ message: 'Missing user id or project id' });
-      return;
-    }
+		if (!userId || !projectId) {
+			res.status(400).json({ message: 'Missing user id or project id' });
+			return;
+		}
 
-    const project = await prisma.project.findUnique({
-      where: { id: projectId },
-    });
+		const project = await prisma.project.findUnique({
+			where: { id: projectId },
+		});
 
-    if (!project) {
-      res.status(404).json({ message: 'Project not found' });
-      return;
-    }
+		if (!project) {
+			res.status(404).json({ message: 'Project not found' });
+			return;
+		}
 
-    if (project.creatorId !== senderId) {
-      res.status(403).json({ message: 'You are not authorized to send invitations for this project' });
-      return;
-    }
+		if (project.creatorId !== senderId) {
+			res.status(403).json({ message: 'You are not authorized to send invitations for this project' });
+			return;
+		}
 
-    const invitation = await prisma.projectInvitation.create({
-      data: {
-        userId,
-        projectId,
-      },
-    });
+		const invitation = await prisma.projectInvitation.create({
+			data: {
+				userId,
+				projectId,
+			},
+		});
 
-    res.json(invitation);
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({ message: 'Internal server error' });
-  }
+		res.json(invitation);
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: 'Internal server error' });
+	}
 });
 
 interface RespondInvitationRequest extends AuthenticatedRequest {
-  body: {
-    invitationId: string;
-    accept: boolean;
-  };
+	body: {
+		invitationId: string;
+		accept: boolean;
+	};
 }
 
 router.post('/respond-invitation', authenticateToken, async (req: RespondInvitationRequest, res) => {
-  try {
-    const { invitationId, accept } = req.body;
-    const userId = getUserId(req.user as JwtPayload);
+	try {
+		const { invitationId, accept } = req.body;
+		const userId = getUserId(req.user as JwtPayload);
 
-    if (!invitationId || accept === undefined) {
-      res.status(400).json({ message: 'Missing invitation id or accept status' });
-      return;
-    }
+		if (!invitationId || accept === undefined) {
+			res.status(400).json({ message: 'Missing invitation id or accept status' });
+			return;
+		}
 
-    const invitation = await prisma.projectInvitation.findUnique({
-      where: { id: invitationId },
-      include: { Project: true },
-    });
+		const invitation = await prisma.projectInvitation.findUnique({
+			where: { id: invitationId },
+			include: { Project: true },
+		});
 
-    if (!invitation) {
-      res.status(404).json({ message: 'Invitation not found' });
-      return;
-    }
+		if (!invitation) {
+			res.status(404).json({ message: 'Invitation not found' });
+			return;
+		}
 
-    if (invitation.userId !== userId) {
-      res.status(403).json({ message: 'You are not authorized to respond to this invitation' });
-      return;
-    }
+		if (invitation.userId !== userId) {
+			res.status(403).json({ message: 'You are not authorized to respond to this invitation' });
+			return;
+		}
 
-    const status = accept ? 'ACCEPTED' : 'REJECTED';
+		const status = accept ? 'ACCEPTED' : 'REJECTED';
 
-    const updatedInvitation = await prisma.projectInvitation.update({
-      where: { id: invitationId },
-      data: { status },
-    });
+		const updatedInvitation = await prisma.projectInvitation.update({
+			where: { id: invitationId },
+			data: { status },
+		});
 
-    if (status === 'ACCEPTED') {
-      await prisma.projectMember.create({
-        data: {
-          userId: invitation.userId,
-          projectId: invitation.projectId,
-          role: 'Member',
-          status: 'ACCEPTED',
-          memberType: MemberType.MEMBER,
-        },
-      });
-    }
+		if (status === 'ACCEPTED') {
+			await prisma.projectMember.create({
+				data: {
+					userId: invitation.userId,
+					projectId: invitation.projectId,
+					role: 'Member',
+					status: 'ACCEPTED',
+					memberType: MemberType.MEMBER,
+				},
+			});
+		}
 
-    res.json(updatedInvitation);
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({ message: 'Internal server error' });
-  }
+		res.json(updatedInvitation);
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: 'Internal server error' });
+	}
 });
 
-interface ReceivedInvitationsRequest extends AuthenticatedRequest {}
+interface ReceivedInvitationsRequest extends AuthenticatedRequest { }
 
 router.get('/received-invitations', authenticateToken, async (req: ReceivedInvitationsRequest, res) => {
-  try {
-    const userId = getUserId(req.user as JwtPayload);
+	try {
+		const userId = getUserId(req.user as JwtPayload);
 
-    const invitations = await prisma.projectInvitation.findMany({
-      where: { userId },
-      include: { Project: true },
-    });
+		const invitations = await prisma.projectInvitation.findMany({
+			where: { userId },
+			include: { Project: true },
+		});
 
-    res.json(invitations);
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({ message: 'Internal server error' });
-  }
+		res.json(invitations);
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: 'Internal server error' });
+	}
 });
 
-interface SentInvitationsRequest extends AuthenticatedRequest {}
+interface SentInvitationsRequest extends AuthenticatedRequest { }
 
 router.get('/sent-invitations', authenticateToken, async (req: SentInvitationsRequest, res) => {
-  try {
-    const userId = getUserId(req.user as JwtPayload);
+	try {
+		const userId = getUserId(req.user as JwtPayload);
 
-    const invitations = await prisma.projectInvitation.findMany({
-      where: {
-        Project: {
-          creatorId: userId,
-        },
-      },
-      include: { User: true },
-    });
+		const invitations = await prisma.projectInvitation.findMany({
+			where: {
+				Project: {
+					creatorId: userId,
+				},
+			},
+			include: { User: true },
+		});
 
-    res.json(invitations);
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({ message: 'Internal server error' });
-  }
+		res.json(invitations);
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: 'Internal server error' });
+	}
 });
 
 export const projectRouter = router;
