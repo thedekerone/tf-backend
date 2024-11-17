@@ -96,7 +96,6 @@ model Project {
   projectRequests     ProjectRequest[]
   projectInvitations  ProjectInvitation[]
   Course              Course          @relation(fields: [courseId], references: [id])
-  skills              Skill[]
   tags                Tag[]
 }
 
@@ -116,7 +115,6 @@ model Skill {
   name     String    @unique
   category String?
   users    User[]
-  projects Project[]
 }
 
 model Tag {
