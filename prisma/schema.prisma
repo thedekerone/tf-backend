@@ -10,7 +10,7 @@ model ProjectRequest {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   User        User     @relation(fields: [userId], references: [id])
-  Project     Project  @relation(fields: [projectId], references: [id])
+  Project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model ProjectInvitation {
@@ -21,7 +21,7 @@ model ProjectInvitation {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   User        User     @relation(fields: [userId], references: [id])
-  Project     Project  @relation(fields: [projectId], references: [id])
+  Project     Project  @relation(fields: [projectId], references: [id],onDelete: Cascade)
 }
 
 enum MemberType {
@@ -75,7 +75,7 @@ model ProjectMember {
   updatedAt DateTime @updatedAt
   memberType MemberType @default(MEMBER)
   User      User     @relation(fields: [userId], references: [id])
-  Project   Project  @relation(fields: [projectId], references: [id])
+  Project   Project  @relation(fields: [projectId], references: [id],onDelete: Cascade)
 }
 
 model Project {
@@ -92,10 +92,10 @@ model Project {
   Creator     User    @relation("UserCreatedProjects", fields: [creatorId], references: [id])
   createdAt   DateTime?       @default(now())
   updatedAt   DateTime?       @updatedAt
-  members             ProjectMember[]
+  members             ProjectMember[] 
   projectRequests     ProjectRequest[]
   projectInvitations  ProjectInvitation[]
-  Course              Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  Course              Course          @relation(fields: [courseId], references: [id])
   tags                Tag[]
 }
 
