@@ -573,15 +573,15 @@ router.get('/sent-invitations', authenticateToken, async (req: SentInvitationsRe
 });
 
 interface RemoveProjectRequest extends AuthenticatedRequest {
-	body: {
-		projectId: string;
-	};
+	query: {
+		projectId: string
+	}
 }
 
 router.delete('/remove-project', authenticateToken, async (req: RemoveProjectRequest, res) => {
 	try {
 		const userId = getUserId(req.user as JwtPayload);
-		const { projectId } = req.body;
+		const projectId = req.query.projectId;
 
 		if (!projectId) {
 			res.status(400).json({ message: 'Missing project id' });
