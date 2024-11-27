@@ -572,5 +572,100 @@ router.get('/sent-invitations', authenticateToken, async (req: SentInvitationsRe
 	}
 });
 
+interface RemoveProjectRequest extends AuthenticatedRequest {
+	body: {
+		projectId: string;
+	};
+}
+
+router.delete('/remove-project', authenticateToken, async (req: RemoveProjectRequest, res) => {
+	try {
+		const userId = getUserId(req.user as JwtPayload);
+		const { projectId } = req.body;
+
+		if (!projectId) {
+			res.status(400).json({ message: 'Missing project id' });
+			return;
+		}
+
+		const project = await prisma.project.findUnique({
+			where: { id: projectId },
+		});
+
+		if (!project) {
+			res.status(404).json({ message: 'Project not found' });
+			return;
+		}
+
+		if (project.creatorId !== userId) {
+			res.status(403).json({ message: 'You are not authorized to delete this project' });
+			return;
+		}
+
+		await prisma.project.delete({
+			where: { id: projectId },
+		});
+
+		res.json({ message: 'Project deleted successfully' });
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: 'Internal server error' });
+	}
+});
+
+interface EditProjectRequest extends AuthenticatedRequest {
+	body: {
+		projectId: string;
+		name?: string;
+		description?: string;
+		keywords?: string;
+		skills?: string;
+		teamName?: string;
+	};
+}
+
+router.put('/edit-project', authenticateToken, async (req: EditProjectRequest, res) => {
+	try {
+		const userId = getUserId(req.user as JwtPayload);
+		const { projectId, name, description, keywords, skills, teamName } = req.body;
+
+		if (!projectId) {
+			res.status(400).json({ message: 'Missing project id' });
+			return;
+		}
+
+		const project = await prisma.project.findUnique({
+			where: { id: projectId },
+		});
+
+		if (!project) {
+			res.status(404).json({ message: 'Project not found' });
+			return;
+		}
+
+		if (project.creatorId !== userId) {
+			res.status(403).json({ message: 'You are not authorized to edit this project' });
+			return;
+		}
+
+		const updatedProject = await prisma.project.update({
+			where: { id: projectId },
+			data: {
+				name: name ?? project.name,
+				description: description ?? project.description,
+				keywords: keywords ?? project.keywords,
+				skills: skills ?? project.skills,
+				teamName: teamName ?? project.teamName,
+			},
+		});
+
+		res.json(updatedProject);
+	} catch (e) {
+		console.log(e);
+		res.status(500).json({ message: 'Internal server error' });
+	}
+});
+
+
 export const projectRouter = router;
 
