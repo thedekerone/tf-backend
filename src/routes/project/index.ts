@@ -160,7 +160,7 @@ router.post('/create-project', authenticateToken, async (req: CreateProjectReque
 			return;
 		}
 
-		const { name, courseId, description, keywords, skills, teamName } = req.body;
+		const { name, courseId, description, keywords, skills = "", teamName } = req.body;
 
 		// Check if the user exists
 		const userExists = await prisma.user.findFirst({
