@@ -47,13 +47,6 @@ async function main() {
       phone: '555-123-4567',
       avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
       userType: 'STUDENT',
-      skills: {
-        create: [
-          { name: 'JavaScript', category: 'Programming Languages' },
-          { name: 'React.js', category: 'Frontend Frameworks' },
-          { name: 'Node.js', category: 'Backend Frameworks' },
-        ],
-      },
       courses: {
         connect: [{ id: course1.id }],
       },
@@ -67,13 +60,6 @@ async function main() {
       phone: '555-987-6543',
       avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
       userType: 'TEACHER',
-      skills: {
-        create: [
-          { name: 'Python', category: 'Programming Languages' },
-          { name: 'Machine Learning', category: 'Artificial Intelligence' },
-          { name: 'Data Analysis', category: 'Data Science' },
-        ],
-      },
       courses: {
         connect: [{ id: course2.id }],
       },
@@ -90,12 +76,6 @@ async function main() {
         courseId: course1.id,
         status: 'Active',
         creatorId: user1.id,
-        skills: {
-          connectOrCreate: {
-            where: { name: 'Node.js' },
-            create: { name: 'Node.js', category: 'Backend Frameworks' },
-          },
-        },
         tags: {
           connectOrCreate: {
             where: { name: 'Backend Development' },
@@ -115,12 +95,6 @@ async function main() {
         courseId: course1.id,
         status: 'Active',
         creatorId: user1.id,
-        skills: {
-          connectOrCreate: {
-            where: { name: 'React.js' },
-            create: { name: 'React.js', category: 'Frontend Frameworks' },
-          },
-        },
         tags: {
           connectOrCreate: {
             where: { name: 'Frontend Development' },
@@ -140,12 +114,6 @@ async function main() {
         courseId: course1.id,
         status: 'Active',
         creatorId: user1.id,
-        skills: {
-          connectOrCreate: {
-            where: { name: 'Flutter' },
-            create: { name: 'Flutter', category: 'Mobile Frameworks' },
-          },
-        },
         tags: {
           connectOrCreate: {
             where: { name: 'Mobile Development' },
@@ -165,12 +133,6 @@ async function main() {
         courseId: course2.id,
         status: 'Active',
         creatorId: user2.id,
-        skills: {
-          connectOrCreate: {
-            where: { name: 'TensorFlow' },
-            create: { name: 'TensorFlow', category: 'Machine Learning Frameworks' },
-          },
-        },
         tags: {
           connectOrCreate: {
             where: { name: 'AI Development' },
@@ -190,12 +152,6 @@ async function main() {
         courseId: course2.id,
         status: 'Active',
         creatorId: user2.id,
-        skills: {
-          connectOrCreate: {
-            where: { name: 'Django' },
-            create: { name: 'Django', category: 'Backend Frameworks' },
-          },
-        },
         tags: {
           connectOrCreate: {
             where: { name: 'Backend Development' },
@@ -215,12 +171,6 @@ async function main() {
         courseId: course2.id,
         status: 'Active',
         creatorId: user2.id,
-        skills: {
-          connectOrCreate: {
-            where: { name: 'D3.js' },
-            create: { name: 'D3.js', category: 'Data Visualization' },
-          },
-        },
         tags: {
           connectOrCreate: {
             where: { name: 'Data Visualization' },
