@@ -582,6 +582,7 @@ router.delete('/remove-project', authenticateToken, async (req: RemoveProjectReq
 	try {
 		const userId = getUserId(req.user as JwtPayload);
 		const projectId = req.query.projectId;
+		console.log(req)
 
 		if (!projectId) {
 			res.status(400).json({ message: 'Missing project id' });

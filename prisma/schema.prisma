@@ -92,11 +92,11 @@ model Project {
   Creator     User    @relation("UserCreatedProjects", fields: [creatorId], references: [id])
   createdAt   DateTime?       @default(now())
   updatedAt   DateTime?       @updatedAt
-  members             ProjectMember[]
-  projectRequests     ProjectRequest[]
-  projectInvitations  ProjectInvitation[]
-  Course              Course          @relation(fields: [courseId], references: [id])
-  tags                Tag[]
+  members             ProjectMember[] @relation(onDelete: Cascade)
+  projectRequests     ProjectRequest[] @relation(onDelete: Cascade)
+  projectInvitations  ProjectInvitation[] @relation(onDelete: Cascade)
+  Course              Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  tags                Tag[] @relation(onDelete: Cascade)
 }
 
 model Course {
